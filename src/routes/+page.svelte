@@ -99,7 +99,7 @@
 			{/each}
 		</div>
 	{:else}
-		<div class="loading">...loading weather data...</div>
+		<div class="loading">...Loading weather data...</div>
 	{/if}
 </div>
 <link rel="preconnect" href="https://rsms.me/" />
