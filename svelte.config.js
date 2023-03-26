@@ -9,11 +9,7 @@ const config = {
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter: adapter({
-			pages: 'docs',
-			assets: 'docs',
-			fallback: 'index.html'
-		}),
+		adapter: adapter(),
 		paths: {
 			base: dev ? '' : '/whirligig',
 		}
