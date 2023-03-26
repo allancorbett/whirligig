@@ -1,6 +1,5 @@
 <script>
 	// @ts-nocheck
-
 	let weatherData;
 	let temp;
 	let sunrise;
