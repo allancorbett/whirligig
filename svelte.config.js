@@ -23,7 +23,7 @@ const config = {
 			strict: true
 		}),
 		paths: {
-			base: dev ? '' : '/whirligig',
+			base: dev ? '' : '/whirligig/',
 		}
 	}
 };
