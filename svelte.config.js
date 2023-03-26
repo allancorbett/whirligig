@@ -19,7 +19,11 @@ const config = {
 			fallback: null,
 			precompress: false,
 			strict: true
-		})
+		}),
+		paths: {
+			// eslint-disable-next-line no-undef
+			base: dev ? '' : '/whirligig',
+		}
 	}
 };
 
