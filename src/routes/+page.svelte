@@ -1,54 +1,34 @@
-<script>
-	/**
-	 * @type {boolean}
-	 */
-	let knownLocation;
-	/**
-	 * @type {{ hourly: { temperature_2m: any; precipitation: any; windspeed_180m: any; }; daily: { sunrise: any[]; sunset: any[]; }; }}
-	 */
-	let weatherData;
-	/**
-	 * @type {any[]}
-	 */
-	let temp;
-	let sunrise;
-	let sunset;
-	/**
-	 * @type {number}
-	 */
-	let sunriseHour;
-	/**
-	 * @type {number}
-	 */
-	let sunsetHour;
-	/**
-	 * @type {number[]}
-	 */
-	let precipitation;
-	/**
-	 * @type {number[]}
-	 */
-	let windSpeed;
+<script lang="ts">
+	let knownLocation: boolean;
+	let demoDialog: HTMLDialogElement;
+	let weatherData: {
+		hourly: { apparent_temperature: any; precipitation: any; windspeed_180m: any };
+		daily: { sunrise: any[]; sunset: any[] };
+	};
+	let temp: number[];
+	let sunrise: Date;
+	let sunset: Date;
+	let sunriseHour: number;
+	let sunsetHour: number;
+	let precipitation: number[];
+	let windSpeed: number[];
 
-	/**
-	 * @param {number} lat
-	 * @param {number} lon
-	 */
-	async function getWeatherData(lat, lon) {
-		const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,precipitation_probability,precipitation,cloudcover,windspeed_180m&daily=sunrise,sunset&forecast_days=1&timezone=auto`;
+	async function getWeatherData(lat: number, lon: number) {
+		const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=apparent_temperature,precipitation_probability,precipitation,cloudcover,windspeed_180m&daily=sunrise,sunset&forecast_days=1&timezone=auto`;
 		const response = await fetch(url, {});
 		if (!response.ok) {
 			throw new Error(`Failed to fetch weather data: ${response.status}`);
 		}
 		setTimeout(async () => {
 			weatherData = await response.json();
-			temp = weatherData.hourly.temperature_2m;
+			temp = weatherData.hourly.apparent_temperature;
 			sunrise = weatherData.daily.sunrise[0];
 			sunset = weatherData.daily.sunset[0];
 			sunriseHour = new Date(sunrise).getHours();
 			sunsetHour = new Date(sunset).getHours();
 			precipitation = weatherData.hourly.precipitation;
 			windSpeed = weatherData.hourly.windspeed_180m;
+			console.log(weatherData);
 		}, 3000);
 	}
 
@@ -69,82 +49,143 @@
 			}
 		);
 	}
+	let minTemp: number;
+	let minRain: number;
+	let maxWind: number;
+
+	// check if the minTemp exists in localStorage if not add it, if it does then use it
+	if (typeof localStorage !== 'undefined') {
+		if (localStorage.getItem('minTemp')) {
+			minTemp = Number(localStorage.getItem('minTemp'));
+		} else {
+			minTemp = 5;
+			localStorage.setItem('minTemp', minTemp.toString());
+		}
+		if (localStorage.getItem('minRain')) {
+			minRain = Number(localStorage.getItem('minRain'));
+		} else {
+			minRain = 0.5;
+			localStorage.setItem('minRain', minRain.toString());
+		}
+		if (localStorage.getItem('maxWind')) {
+			maxWind = Number(localStorage.getItem('maxWind'));
+		} else {
+			maxWind = 60;
+			localStorage.setItem('maxWind', maxWind.toString());
+		}
+	}
 
 	function isGoodWeather() {
 		// check if the weather is dry and warm between sunrise and sunset
-		for (let i = sunriseHour; i <= sunsetHour; i++) {
-			if (temp[i] < 10) {
+		for (let i = sunriseHour + 2; i <= sunsetHour; i++) {
+			if (temp[i] < minTemp) {
 				return false;
 			}
-			if (precipitation[i] > 0) {
+			if (precipitation[i] > minRain) {
 				return false;
 			}
-			if (windSpeed[i] > 30) {
+			if (windSpeed[i] > maxWind) {
 				return false;
 			}
 		}
 		return true;
-	}
-
-	function showNotification() {
-		if ('Notification' in window && Notification.permission === 'granted') {
-			navigator.serviceWorker.ready.then((registration) => {
-				registration.showNotification('Good weather for hanging washing out!', {
-					body: 'The weather tomorrow is going to be dry and warm between 8am and 6pm.',
-					icon: 'path/to/icon.png'
-				});
-			});
-		}
 	}
 </script>
 
 <svelte:head>
 	<title>Whirligig Weather</title>
 </svelte:head>
-
-<div
-	class="wrapper"
-	class:good={weatherData && isGoodWeather()}
-	class:bad={weatherData && !isGoodWeather()}
->
+<main>
 	<header>
 		<h1>Whirligig weather tomorrow?</h1>
-	</header>
-	{#if knownLocation}
-		{#if weatherData}
-			<div class="message">
-				{#if isGoodWeather()}
-					<p>Yup!</p>
-				{:else}
-					<p>Nope.</p>
-				{/if}
+		<menu on:click={() => demoDialog.showModal()}>
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+				<path
+					fill="currentColor"
+					d="M6.17 18a3.001 3.001 0 0 1 5.66 0H22v2H11.83a3.001 3.001 0 0 1-5.66 0H2v-2h4.17zm6-7a3.001 3.001 0 0 1 5.66 0H22v2h-4.17a3.001 3.001 0 0 1-5.66 0H2v-2h10.17zm-6-7a3.001 3.001 0 0 1 5.66 0H22v2H11.83a3.001 3.001 0 0 1-5.66 0H2V4h4.17zM9 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm6 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-6 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
+				/>
+			</svg>
+		</menu>
+		<dialog bind:this={demoDialog}>
+			<div>
+				<label for="minTemp">
+					Minimum temperature • {minTemp}°C
+					<input
+						type="range"
+						name="minTemp"
+						id="minTemp"
+						min="-10"
+						max="30"
+						step="1"
+						bind:value={minTemp}
+						on:change={() => {
+							localStorage.setItem('minTemp', minTemp.toString());
+						}}
+					/>
+				</label>
+
+				<label for="minRain">
+					Minimum rain • {minRain}mm
+					<input
+						type="range"
+						name="minRain"
+						id="minRain"
+						min="0"
+						max="5"
+						step="0.1"
+						bind:value={minRain}
+						on:change={() => {
+							localStorage.setItem('minRain', minRain.toString());
+						}}
+					/>
+				</label>
+
+				<label for="maxWind">
+					Maximum wind • {maxWind}km/h
+					<input
+						type="range"
+						name="maxWind"
+						id="maxWind"
+						min="0"
+						max="100"
+						step="5"
+						bind:value={maxWind}
+						on:change={() => {
+							localStorage.setItem('maxWind', maxWind.toString());
+						}}
+					/>
+				</label>
+
+				<button on:click={() => demoDialog.close()}>Close + Save</button>
 			</div>
-			<!-- <div class="forecast">
-                {#each precipitation as rain, i}
-                    {#if i <= sunriseHour || i >= sunsetHour}
-                        <div class="hour night">
-                            <span class="time">{i + 1}</span>
-                            <span class="rain">{rain}<small>mm</small></span>
-                            <span class="temp">{temp[i]}<small>℃</small></span>
-                        </div>
-                    {:else}
-                        <div class="hour">
-                            <span class="time">{i + 1}</span>
-                            <span class="rain">{rain}<small>mm</small></span>
-                            <span class="temp">{temp[i]}<small>℃</small></span>
-                        </div>
-                    {/if}
-                {/each}
-            </div> -->
-		{:else}
-			<div class="loading"><p>Checking...</p></div>
-		{/if}
-	{:else}
-		<div class="location">
-			<p>Where are you?</p>
+		</dialog>
+	</header>
+	{#key minTemp + minRain + maxWind}
+		<div
+			class="wrapper
+				{weatherData && isGoodWeather() ? 'good' : ''} 
+				{weatherData && !isGoodWeather() ? 'bad' : ''}"
+		>
+			{#if knownLocation}
+				{#if weatherData}
+					<div class="message">
+						{#if isGoodWeather()}
+							<p>Yup!</p>
+						{:else}
+							<p>Nope.</p>
+						{/if}
+					</div>
+				{:else}
+					<div class="loading"><p>Checking...</p></div>
+				{/if}
+			{:else}
+				<div class="location">
+					<p>Where are you?</p>
+				</div>
+			{/if}
 		</div>
-	{/if}
-</div>
+	{/key}
+</main>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -161,29 +202,102 @@
 		--bad-stripe: hsla(0deg, 100%, 0%, 0.875);
 		--bad-stripe-highlight: hsla(0deg, 100%, 0%, 1);
 		--default-background: hsl(180, 100%, 25.1%);
+		--dialog-background: hsla(180, 100%, 17.5%, 0.9);
 		--loading-stripe: hsl(180, 100%, 17.5%);
 		--location-stripe: hsl(190, 75%, 50%);
-
 		--text: white;
-		--text-shadow: 0 0.25em 0 #000;
+		--text-shadow: 0 0.25em 0 black;
 		font-family: 'Space Grotesk', sans-serif;
 		line-height: 0.9;
 		color: var(--text);
 		font-weight: 700;
 		text-shadow: var(--text-shadow);
 	}
+
+	main {
+		display: grid;
+		grid-template-rows: auto 1fr;
+		grid-template-columns: 100%;
+	}
+	header {
+		grid-row: 1/2;
+		grid-column: 1/-1;
+		z-index: 2;
+		--webkit-backdrop-filter: blur(2rem);
+		backdrop-filter: blur(2rem);
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 2rem;
+	}
+	header h1 {
+		font-size: 3rem;
+		margin: 0;
+	}
+	menu {
+		margin: 0;
+		padding: 0;
+		cursor: pointer;
+	}
+	menu svg {
+		height: 2rem;
+		width: 2rem;
+		fill: white;
+		filter: drop-shadow(var(--text-shadow));
+	}
+	dialog {
+		text-shadow: 0 0 0 transparent;
+		padding: 0;
+		border: none;
+		width: 80vw;
+		background-color: hsla(0, 0%, 100%, 0.9);
+	}
+	dialog::backdrop {
+		backdrop-filter: blur(2rem);
+	}
+	dialog div {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+		padding: 2rem;
+		border: 0;
+	}
+	dialog label {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+	dialog button {
+		font-family: 'Space Grotesk', sans-serif;
+		appearance: none;
+		outline: none;
+		background-color: transparent;
+		border: 0.25rem solid black;
+		box-shadow: var(--text-shadow);
+		font-size: clamp(1rem, 2vw, 30rem);
+		white-space: nowrap;
+		padding: 1rem;
+		font-weight: 700;
+		transition: all 150ms linear;
+		cursor: pointer;
+		text-transform: uppercase;
+	}
+	dialog button:hover {
+		background-color: black;
+		color: white;
+		box-shadow: none;
+		transform: translateY(0.25rem);
+	}
 	.wrapper {
+		grid-row: 1/3;
+		grid-column: 1/-1;
 		display: flex;
 		flex-direction: column;
 		height: 100vh;
 		background-color: var(--default-background);
 		transition: all 450ms linear;
 	}
-	header h1 {
-		font-size: 3rem;
-		padding: 2rem;
-		margin: 0;
-	}
+
 	.message {
 		flex: 1;
 		display: grid;
@@ -249,7 +363,15 @@
 			0 0 0 41vmax var(--good-line), 0 0 0 45vmax var(--good-background),
 			0 0 0 46vmax var(--good-line), 0 0 0 50vmax var(--good-background),
 			0 0 0 51vmax var(--good-line), 0 0 0 55vmax var(--good-background),
-			0 0 0 56vmax var(--good-line), 0 0 0 60vmax var(--good-background);
+			0 0 0 56vmax var(--good-line), 0 0 0 60vmax var(--good-background),
+			0 0 0 61vmax var(--good-line), 0 0 0 65vmax var(--good-background),
+			0 0 0 66vmax var(--good-line), 0 0 0 70vmax var(--good-background),
+			0 0 0 71vmax var(--good-line), 0 0 0 75vmax var(--good-background),
+			0 0 0 76vmax var(--good-line), 0 0 0 80vmax var(--good-background),
+			0 0 0 81vmax var(--good-line), 0 0 0 85vmax var(--good-background),
+			0 0 0 86vmax var(--good-line), 0 0 0 90vmax var(--good-background),
+			0 0 0 91vmax var(--good-line), 0 0 0 95vmax var(--good-background),
+			0 0 0 96vmax var(--good-line), 0 0 0 100vmax var(--good-background);
 		animation: goodWeather 30s linear infinite;
 	}
 	@keyframes goodWeather {
