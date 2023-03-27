@@ -40,14 +40,16 @@
 		if (!response.ok) {
 			throw new Error(`Failed to fetch weather data: ${response.status}`);
 		}
-		weatherData = await response.json();
-		temp = weatherData.hourly.temperature_2m;
-		sunrise = weatherData.daily.sunrise[0];
-		sunset = weatherData.daily.sunset[0];
-		sunriseHour = new Date(sunrise).getHours();
-		sunsetHour = new Date(sunset).getHours();
-		precipitation = weatherData.hourly.precipitation;
-		windSpeed = weatherData.hourly.windspeed_180m;
+		setTimeout(async () => {
+			weatherData = await response.json();
+			temp = weatherData.hourly.temperature_2m;
+			sunrise = weatherData.daily.sunrise[0];
+			sunset = weatherData.daily.sunset[0];
+			sunriseHour = new Date(sunrise).getHours();
+			sunsetHour = new Date(sunset).getHours();
+			precipitation = weatherData.hourly.precipitation;
+			windSpeed = weatherData.hourly.windspeed_180m;
+		}, 3000);
 	}
 
 	if (typeof navigator !== 'undefined') {
@@ -166,7 +168,6 @@
 		--text-shadow: 0 0.25em 0 #000;
 		font-family: 'Space Grotesk', sans-serif;
 		line-height: 0.9;
-		letter-spacing: -0.125ch;
 		color: var(--text);
 		font-weight: 700;
 		text-shadow: var(--text-shadow);
@@ -265,6 +266,7 @@
 		place-items: center;
 		grid-template: 1fr / 1fr;
 		font-size: clamp(4rem, 15vw, 30rem);
+		letter-spacing: -0.125ch;
 		text-align: center;
 		background-image: repeating-linear-gradient(
 			-30deg,
@@ -283,6 +285,7 @@
 		place-items: center;
 		grid-template: 1fr / 1fr;
 		font-size: clamp(2rem, 5vw, 10rem);
+		letter-spacing: -0.125ch;
 		text-align: center;
 		background-image: repeating-radial-gradient(
 			circle,
