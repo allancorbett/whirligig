@@ -1,21 +1,41 @@
 <script>
-	// @ts-nocheck
+	/**
+	 * @type {{ hourly: { temperature_2m: any; precipitation: any; windspeed_180m: any; }; daily: { sunrise: any[]; sunset: any[]; }; }}
+	 */
 	let weatherData;
+	/**
+	 * @type {any[]}
+	 */
 	let temp;
 	let sunrise;
 	let sunset;
+	/**
+	 * @type {number}
+	 */
 	let sunriseHour;
+	/**
+	 * @type {number}
+	 */
 	let sunsetHour;
+	/**
+	 * @type {number[]}
+	 */
 	let precipitation;
+	/**
+	 * @type {number[]}
+	 */
 	let windSpeed;
 
+	/**
+	 * @param {number} lat
+	 * @param {number} lon
+	 */
 	async function getWeatherData(lat, lon) {
 		const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,precipitation_probability,precipitation,cloudcover,windspeed_180m&daily=sunrise,sunset&forecast_days=1&timezone=auto`;
 		const response = await fetch(url, {});
 		if (!response.ok) {
 			throw new Error(`Failed to fetch weather data: ${response.status}`);
 		}
-		// const data = await response.json();
 		weatherData = await response.json();
 		temp = weatherData.hourly.temperature_2m;
 		sunrise = weatherData.daily.sunrise[0];
@@ -44,7 +64,7 @@
 		);
 	}
 
-	function isGoodWeather(weatherData) {
+	function isGoodWeather() {
 		// check if the weather is dry and warm between sunrise and sunset
 		for (let i = sunriseHour; i <= sunsetHour; i++) {
 			if (temp[i] < 10) {
@@ -75,7 +95,7 @@
 <div class="wrapper">
 	{#if weatherData}
 		<div class="message">
-			{#if isGoodWeather(weatherData)}
+			{#if isGoodWeather()}
 				<p class="good">The weather is good for hanging washing out tomorrow!</p>
 			{:else}
 				<p class="bad">The weather is not good for hanging washing out tomorrow.</p>
