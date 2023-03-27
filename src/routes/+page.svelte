@@ -53,11 +53,11 @@
 	if (typeof navigator !== 'undefined') {
 		navigator.geolocation.getCurrentPosition(
 			async (position) => {
+				knownLocation = true;
 				const lat = position.coords.latitude;
 				const lon = position.coords.longitude;
 				try {
 					await getWeatherData(lat, lon);
-					knownLocation = true;
 				} catch (error) {
 					console.error(error);
 				}
@@ -95,6 +95,10 @@
 		}
 	}
 </script>
+
+<svelte:head>
+	<title>Whirligig Weather</title>
+</svelte:head>
 
 <div
 	class="wrapper"
