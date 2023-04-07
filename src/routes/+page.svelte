@@ -15,6 +15,7 @@
 	let day3Sunrise: number;
 	let day3Sunset: number;
 	let day3Noon: number;
+	let headerColour: string | undefined;
 	let precipitation: number[];
 	let windSpeed: number[];
 	const noon = 12;
@@ -40,6 +41,7 @@
 			day3Sunset = new Date(weatherData.daily.sunset[2]).getHours() + day * 2;
 			precipitation = weatherData.hourly.precipitation;
 			windSpeed = weatherData.hourly.windspeed_180m;
+			headerColour = determineHeaderColour();
 		}, 3000);
 	}
 
@@ -171,35 +173,23 @@
 		return true;
 	}
 
-	function showDay1am(): boolean {
-		return new Date().getHours() < day1Noon;
+	function isDay1Am() {
+		const now = new Date().getHours();
+		return now < day1Noon;
 	}
-	function showDay1pm(): boolean {
-		return new Date().getHours() < day1Sunset;
+
+	function isDay1Pm() {
+		const now = new Date().getHours();
+		return now < day1Sunset;
 	}
 
 	function determineHeaderColour() {
-		if (showDay1am()) {
-			console.log(day1Am());
-
-			if (day1Am() === true) {
-				return 'good';
-			}
-			if (day1Am() === false) {
-				return 'bad';
-			}
-		} else if (!showDay1am() && showDay1pm()) {
-			if (day1Pm()) {
-				return 'good';
-			} else {
-				return 'bad';
-			}
-		} else if (!showDay1am() && !showDay1pm()) {
-			if (day2Am()) {
-				return 'good';
-			} else {
-				return 'bad';
-			}
+		if (isDay1Am()) {
+			return day1Am() ? 'good day1am' : 'bad day1am';
+		} else if (!isDay1Am() && isDay1Pm()) {
+			return day1Pm() ? 'good day1pm' : 'bad day1pm';
+		} else if (!isDay1Am() && !isDay1Pm()) {
+			return day2Am() ? 'good day2am' : 'bad day2am';
 		}
 	}
 </script>
@@ -207,9 +197,9 @@
 <svelte:head>
 	<title>Whirligig Weather</title>
 </svelte:head>
-<main class={determineHeaderColour()}>
+<main class={headerColour}>
 	<header>
-		<h1>Whirligig weather tomorrow?</h1>
+		<h1>Whirligig weather?</h1>
 
 		<menu on:click={() => demoDialog.showModal()}>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -277,7 +267,7 @@
 		<div class="wrapper">
 			{#if knownLocation}
 				{#if weatherData}
-					{#if showDay1am()}
+					{#if isDay1Am()}
 						<div class="message {day1Am() ? 'good' : 'bad'}">
 							<div class="time">this morning?</div>
 							{#if day1Am()}
@@ -287,7 +277,7 @@
 							{/if}
 						</div>
 					{/if}
-					{#if showDay1pm()}
+					{#if isDay1Pm()}
 						<div class="message {day1Pm() ? 'good' : 'bad'}">
 							<div class="time">this afternoon?</div>
 							{#if day1Pm()}
