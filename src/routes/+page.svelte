@@ -6,15 +6,22 @@
 		daily: { sunrise: any[]; sunset: any[] };
 	};
 	let temp: number[];
-	let sunrise: Date;
-	let sunset: Date;
-	let sunriseHour: number;
-	let sunsetHour: number;
+	let day1Sunrise: number;
+	let day1Sunset: number;
+	let day1Noon: number;
+	let day2Sunrise: number;
+	let day2Sunset: number;
+	let day2Noon: number;
+	let day3Sunrise: number;
+	let day3Sunset: number;
+	let day3Noon: number;
 	let precipitation: number[];
 	let windSpeed: number[];
+	const noon = 12;
+	const day = 24;
 
 	async function getWeatherData(lat: number, lon: number) {
-		const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=apparent_temperature,precipitation_probability,precipitation,cloudcover,windspeed_180m&daily=sunrise,sunset&forecast_days=1&timezone=auto`;
+		const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=apparent_temperature,precipitation_probability,precipitation,cloudcover,windspeed_180m&daily=sunrise,sunset&forecast_days=3&timezone=auto`;
 		const response = await fetch(url, {});
 		if (!response.ok) {
 			throw new Error(`Failed to fetch weather data: ${response.status}`);
@@ -22,13 +29,17 @@
 		setTimeout(async () => {
 			weatherData = await response.json();
 			temp = weatherData.hourly.apparent_temperature;
-			sunrise = weatherData.daily.sunrise[0];
-			sunset = weatherData.daily.sunset[0];
-			sunriseHour = new Date(sunrise).getHours();
-			sunsetHour = new Date(sunset).getHours();
+			day1Sunrise = new Date(weatherData.daily.sunrise[0]).getHours();
+			day1Noon = noon;
+			day1Sunset = new Date(weatherData.daily.sunset[0]).getHours();
+			day2Sunrise = new Date(weatherData.daily.sunrise[1]).getHours() + day;
+			day2Noon = noon + day;
+			day2Sunset = new Date(weatherData.daily.sunset[1]).getHours() + day;
+			day3Sunrise = new Date(weatherData.daily.sunrise[2]).getHours() + day * 2;
+			day3Noon = noon + day * 2;
+			day3Sunset = new Date(weatherData.daily.sunset[2]).getHours() + day * 2;
 			precipitation = weatherData.hourly.precipitation;
 			windSpeed = weatherData.hourly.windspeed_180m;
-			console.log(weatherData);
 		}, 3000);
 	}
 
@@ -75,9 +86,8 @@
 		}
 	}
 
-	function isGoodWeather() {
-		// check if the weather is dry and warm between sunrise and sunset
-		for (let i = sunriseHour + 2; i <= sunsetHour; i++) {
+	function day1Am() {
+		for (let i = day1Sunrise + 2; i <= day1Noon; i++) {
 			if (temp[i] < minTemp) {
 				return false;
 			}
@@ -90,14 +100,117 @@
 		}
 		return true;
 	}
+	function day1Pm() {
+		for (let i = day1Noon; i <= day1Sunset; i++) {
+			if (temp[i] < minTemp) {
+				return false;
+			}
+			if (precipitation[i] > minRain) {
+				return false;
+			}
+			if (windSpeed[i] > maxWind) {
+				return false;
+			}
+		}
+		return true;
+	}
+	function day2Am() {
+		for (let i = day2Sunrise + 2; i <= day2Noon; i++) {
+			if (temp[i] < minTemp) {
+				return false;
+			}
+			if (precipitation[i] > minRain) {
+				return false;
+			}
+			if (windSpeed[i] > maxWind) {
+				return false;
+			}
+		}
+		return true;
+	}
+	function day2Pm() {
+		for (let i = day2Noon; i <= day2Sunset; i++) {
+			if (temp[i] < minTemp) {
+				return false;
+			}
+			if (precipitation[i] > minRain) {
+				return false;
+			}
+			if (windSpeed[i] > maxWind) {
+				return false;
+			}
+		}
+		return true;
+	}
+	function day3Am() {
+		for (let i = day3Sunrise + 2; i <= day3Noon; i++) {
+			if (temp[i] < minTemp) {
+				return false;
+			}
+			if (precipitation[i] > minRain) {
+				return false;
+			}
+			if (windSpeed[i] > maxWind) {
+				return false;
+			}
+		}
+		return true;
+	}
+	function day3Pm() {
+		for (let i = day3Noon; i <= day3Sunset; i++) {
+			if (temp[i] < minTemp) {
+				return false;
+			}
+			if (precipitation[i] > minRain) {
+				return false;
+			}
+			if (windSpeed[i] > maxWind) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function showDay1am(): boolean {
+		return new Date().getHours() < day1Noon;
+	}
+	function showDay1pm(): boolean {
+		return new Date().getHours() < day1Sunset;
+	}
+
+	function determineHeaderColour() {
+		if (showDay1am()) {
+			console.log(day1Am());
+
+			if (day1Am() === true) {
+				return 'good';
+			}
+			if (day1Am() === false) {
+				return 'bad';
+			}
+		} else if (!showDay1am() && showDay1pm()) {
+			if (day1Pm()) {
+				return 'good';
+			} else {
+				return 'bad';
+			}
+		} else if (!showDay1am() && !showDay1pm()) {
+			if (day2Am()) {
+				return 'good';
+			} else {
+				return 'bad';
+			}
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Whirligig Weather</title>
 </svelte:head>
-<main>
+<main class={determineHeaderColour()}>
 	<header>
 		<h1>Whirligig weather tomorrow?</h1>
+
 		<menu on:click={() => demoDialog.showModal()}>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
 				<path
@@ -161,15 +274,56 @@
 		</dialog>
 	</header>
 	{#key minTemp + minRain + maxWind}
-		<div
-			class="wrapper
-				{weatherData && isGoodWeather() ? 'good' : ''} 
-				{weatherData && !isGoodWeather() ? 'bad' : ''}"
-		>
+		<div class="wrapper">
 			{#if knownLocation}
 				{#if weatherData}
-					<div class="message">
-						{#if isGoodWeather()}
+					{#if showDay1am()}
+						<div class="message {day1Am() ? 'good' : 'bad'}">
+							<div class="time">this morning?</div>
+							{#if day1Am()}
+								<p>Yup!</p>
+							{:else}
+								<p>Nope.</p>
+							{/if}
+						</div>
+					{/if}
+					{#if showDay1pm()}
+						<div class="message {day1Pm() ? 'good' : 'bad'}">
+							<div class="time">this afternoon?</div>
+							{#if day1Pm()}
+								<p>Yup!</p>
+							{:else}
+								<p>Nope.</p>
+							{/if}
+						</div>
+					{/if}
+					<div class="message {day2Am() ? 'good' : 'bad'}">
+						<div class="time">tomorrow morning?</div>
+						{#if day2Am()}
+							<p>Yup!</p>
+						{:else}
+							<p>Nope.</p>
+						{/if}
+					</div>
+					<div class="message {day2Pm() ? 'good' : 'bad'}">
+						<div class="time">tomorrow afternoon?</div>
+						{#if day2Pm()}
+							<p>Yup!</p>
+						{:else}
+							<p>Nope.</p>
+						{/if}
+					</div>
+					<div class="message {day3Am() ? 'good' : 'bad'}">
+						<div class="time">the day after morning?</div>
+						{#if day3Am()}
+							<p>Yup!</p>
+						{:else}
+							<p>Nope.</p>
+						{/if}
+					</div>
+					<div class="message {day3Pm() ? 'good' : 'bad'}">
+						<div class="time">the day after afternoon?</div>
+						{#if day3Pm()}
 							<p>Yup!</p>
 						{:else}
 							<p>Nope.</p>
@@ -218,6 +372,8 @@
 		display: grid;
 		grid-template-rows: auto 1fr;
 		grid-template-columns: 100%;
+		background-color: var(--default-background);
+		min-height: 100vh;
 	}
 	header {
 		grid-row: 1/2;
@@ -288,35 +444,52 @@
 		box-shadow: none;
 		transform: translateY(0.25rem);
 	}
-	.wrapper {
-		grid-row: 1/3;
-		grid-column: 1/-1;
-		display: flex;
-		flex-direction: column;
-		height: 100vh;
-		background-color: var(--default-background);
-		transition: all 450ms linear;
-	}
 
+	.wrapper {
+		grid-row: 2/3;
+		grid-column: 1/-1;
+		display: grid;
+		grid-template: repeat(6, 1fr);
+		transition: all 450ms linear;
+		/* gap: 5vmin;
+		padding: 5vmin; */
+	}
 	.message {
 		flex: 1;
 		display: grid;
-		place-items: center;
-		grid-template: 1fr / 1fr;
-		font-size: clamp(7rem, 15vw, 30rem);
+		grid-template-columns: 100%;
+		grid-template-rows: 1fr 1fr 3fr 1fr;
 		opacity: 1;
-		letter-spacing: -0.125ch;
 		text-align: center;
+		place-items: center;
+		aspect-ratio: 5/2;
+	}
+
+	@media (max-width: 960px) {
+		.wrapper {
+			grid-template: repeat(6, 1fr) / 1fr;
+		}
+		.message {
+			aspect-ratio: 5/4;
+		}
 	}
 	.message p {
 		grid-column: 1/-1;
-		grid-row: 1/-1;
+		grid-row: 3/4;
 		padding-inline: 2rem;
+		margin: 0;
+		font-size: clamp(7rem, 15vw, 30rem);
+		letter-spacing: -0.125ch;
+	}
+	.message .time {
+		grid-row: 2/3;
+		font-size: clamp(1rem, 3vw, 5rem);
+		z-index: 1;
 	}
 	.bad {
 		background-color: var(--bad-background);
 	}
-	.bad .message {
+	.message.bad {
 		background-image: repeating-linear-gradient(
 				45deg,
 				var(--bad-stripe-highlight) 0vmin,
@@ -340,38 +513,26 @@
 	.good {
 		background-color: var(--good-background);
 	}
-	.good .message {
+	.message.good {
 		z-index: 1;
 		overflow: hidden;
 	}
-	.good .message::before {
+	.message.good::before {
 		content: '';
+		place-self: center;
 		z-index: -1;
 		height: 0;
 		width: 0;
-		aspect-ratio: 1/1;
-		grid-column: 1/-1;
-		grid-row: 1/-1;
-		box-shadow: 0 0 0 1vmax var(--good-line), 0 0 0 5vmax var(--good-background),
-			0 0 0 6vmax var(--good-line), 0 0 0 10vmax var(--good-background),
-			0 0 0 11vmax var(--good-line), 0 0 0 15vmax var(--good-background),
-			0 0 0 16vmax var(--good-line), 0 0 0 20vmax var(--good-background),
-			0 0 0 21vmax var(--good-line), 0 0 0 25vmax var(--good-background),
-			0 0 0 26vmax var(--good-line), 0 0 0 30vmax var(--good-background),
-			0 0 0 31vmax var(--good-line), 0 0 0 35vmax var(--good-background),
-			0 0 0 36vmax var(--good-line), 0 0 0 40vmax var(--good-background),
-			0 0 0 41vmax var(--good-line), 0 0 0 45vmax var(--good-background),
-			0 0 0 46vmax var(--good-line), 0 0 0 50vmax var(--good-background),
-			0 0 0 51vmax var(--good-line), 0 0 0 55vmax var(--good-background),
-			0 0 0 56vmax var(--good-line), 0 0 0 60vmax var(--good-background),
-			0 0 0 61vmax var(--good-line), 0 0 0 65vmax var(--good-background),
-			0 0 0 66vmax var(--good-line), 0 0 0 70vmax var(--good-background),
-			0 0 0 71vmax var(--good-line), 0 0 0 75vmax var(--good-background),
-			0 0 0 76vmax var(--good-line), 0 0 0 80vmax var(--good-background),
-			0 0 0 81vmax var(--good-line), 0 0 0 85vmax var(--good-background),
-			0 0 0 86vmax var(--good-line), 0 0 0 90vmax var(--good-background),
-			0 0 0 91vmax var(--good-line), 0 0 0 95vmax var(--good-background),
-			0 0 0 96vmax var(--good-line), 0 0 0 100vmax var(--good-background);
+		box-shadow: 0 0 0 3vmax var(--good-line), 0 0 0 10vmax var(--good-background),
+			0 0 0 13vmax var(--good-line), 0 0 0 20vmax var(--good-background),
+			0 0 0 23vmax var(--good-line), 0 0 0 30vmax var(--good-background),
+			0 0 0 33vmax var(--good-line), 0 0 0 40vmax var(--good-background),
+			0 0 0 43vmax var(--good-line), 0 0 0 50vmax var(--good-background),
+			0 0 0 53vmax var(--good-line), 0 0 0 60vmax var(--good-background),
+			0 0 0 63vmax var(--good-line), 0 0 0 70vmax var(--good-background),
+			0 0 0 73vmax var(--good-line), 0 0 0 80vmax var(--good-background),
+			0 0 0 83vmax var(--good-line), 0 0 0 90vmax var(--good-background),
+			0 0 0 93vmax var(--good-line), 0 0 0 100vmax var(--good-background);
 		animation: goodWeather 30s linear infinite;
 	}
 	@keyframes goodWeather {
@@ -383,7 +544,9 @@
 		}
 	}
 	.loading {
-		flex: 1;
+		/* margin: -5vmin; */
+		grid-row: 1/4;
+		grid-column: 1/-1;
 		display: grid;
 		place-items: center;
 		grid-template: 1fr / 1fr;
@@ -400,9 +563,13 @@
 		background-position: center center;
 		background-size: 100% 100%;
 		animation: loading 5s linear infinite;
+		margin: -5vmin;
 	}
 	.location {
-		flex: 1;
+		margin: -5vmin;
+		grid-row: 1/4;
+		grid-column: 1/-1;
+		margin: -5vmin;
 		display: grid;
 		place-items: center;
 		grid-template: 1fr / 1fr;
