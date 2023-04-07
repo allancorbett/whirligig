@@ -340,6 +340,14 @@
 
 <style>
 	:root {
+		--shadow-color: 0, 0%, 0%;
+		--shadow: 0px 1px 1.1px hsla(var(--shadow-color), 0.13),
+			0px 6.2px 6.7px -0.5px hsla(var(--shadow-color), 0.12),
+			0px 12.2px 13.3px -0.9px hsla(var(--shadow-color), 0.12),
+			0px 21.9px 23.8px -1.4px hsla(var(--shadow-color), 0.12),
+			0px 38.1px 41.4px -1.8px hsla(var(--shadow-color), 0.11),
+			0px 63.6px 69.2px -2.3px hsla(var(--shadow-color), 0.11),
+			0px 101px 109.8px -2.7px hsla(var(--shadow-color), 0.11);
 		--good-line: greenyellow;
 		--good-background: darkgreen;
 		--bad-background: hsl(0, 100%, 36%);
@@ -350,7 +358,7 @@
 		--loading-stripe: hsl(180, 100%, 17.5%);
 		--location-stripe: hsl(190, 75%, 50%);
 		--text: white;
-		--text-shadow: 0 0.25em 0 black;
+		--text-shadow: 0 0.25em 0 hsl(0, 0%, 0%);
 		font-family: 'Space Grotesk', sans-serif;
 		line-height: 0.9;
 		color: var(--text);
@@ -369,8 +377,8 @@
 		grid-row: 1/2;
 		grid-column: 1/-1;
 		z-index: 2;
-		--webkit-backdrop-filter: blur(2rem);
 		backdrop-filter: blur(2rem);
+		--webkit-backdrop-filter: blur(2rem);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -441,10 +449,10 @@
 		display: grid;
 		grid-template: repeat(6, 1fr);
 		transition: all 450ms linear;
-		/* gap: 5vmin;
-		padding: 5vmin; */
 	}
 	.message {
+		margin: 2vmax 5vmax;
+		box-shadow: var(--shadow);
 		flex: 1;
 		display: grid;
 		grid-template-columns: 100%;
@@ -453,6 +461,7 @@
 		text-align: center;
 		place-items: center;
 		aspect-ratio: 5/2;
+		border-radius: 5vmin;
 	}
 
 	@media (max-width: 960px) {
@@ -534,7 +543,6 @@
 		}
 	}
 	.loading {
-		/* margin: -5vmin; */
 		grid-row: 1/4;
 		grid-column: 1/-1;
 		display: grid;
@@ -553,13 +561,10 @@
 		background-position: center center;
 		background-size: 100% 100%;
 		animation: loading 5s linear infinite;
-		margin: -5vmin;
 	}
 	.location {
-		margin: -5vmin;
 		grid-row: 1/4;
 		grid-column: 1/-1;
-		margin: -5vmin;
 		display: grid;
 		place-items: center;
 		grid-template: 1fr / 1fr;
