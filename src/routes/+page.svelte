@@ -542,15 +542,18 @@
 			transform: rotate(360deg);
 		}
 	}
-	.loading {
-		grid-row: 1/4;
-		grid-column: 1/-1;
+	.loading,
+	.location {
+		flex: 1;
 		display: grid;
 		place-items: center;
 		grid-template: 1fr / 1fr;
-		font-size: clamp(4rem, 15vw, 30rem);
 		letter-spacing: -0.125ch;
 		text-align: center;
+		background-size: 100% 100%;
+	}
+	.loading {
+		font-size: clamp(4rem, 15vw, 30rem);
 		background-image: repeating-linear-gradient(
 			-30deg,
 			var(--loading-stripe) 0vmin,
@@ -559,18 +562,12 @@
 			transparent 20vmin
 		);
 		background-position: center center;
-		background-size: 100% 100%;
+
 		animation: loading 5s linear infinite;
 	}
 	.location {
-		grid-row: 1/4;
-		grid-column: 1/-1;
-		display: grid;
-		place-items: center;
-		grid-template: 1fr / 1fr;
 		font-size: clamp(2rem, 5vw, 10rem);
-		letter-spacing: -0.125ch;
-		text-align: center;
+
 		background-image: repeating-radial-gradient(
 			circle,
 			transparent 0vmin,
@@ -579,7 +576,6 @@
 			var(--location-stripe) 30vmin
 		);
 		background-position: top center;
-		background-size: 100% 100%;
 		animation: location 2s ease-in-out infinite alternate;
 	}
 
