@@ -276,7 +276,7 @@
 					/>
 				</label>
 
-				<button on:click={() => demoDialog.close()}>Close + Save</button>
+				<button on:click={() => demoDialog.close()}>Close & Save</button>
 			</div>
 		</dialog>
 	</header>
@@ -350,8 +350,6 @@
 		color: var(--text);
 		font-weight: 700;
 		text-shadow: var(--text-shadow);
-		-webkit-text-stroke: 0.25em hsl(0, 0%, 0%);
-		paint-order: stroke;
 	}
 
 	main {
@@ -394,8 +392,15 @@
 		background-color: hsla(0, 0%, 100%, 0.9);
 	}
 	dialog::backdrop {
-		backdrop-filter: blur(2rem);
+		background-color: var(--default-background);
 	}
+	@supports (backdrop-filter: blur(2rem)) {
+		dialog::backdrop {
+			backdrop-filter: blur(2rem);
+			--webkit-backdrop-filter: blur(2rem);
+		}
+	}
+
 	dialog div {
 		display: flex;
 		flex-direction: column;
@@ -407,6 +412,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+		font-weight: 700;
 	}
 	dialog button {
 		font-family: 'Space Grotesk', sans-serif;
@@ -421,7 +427,6 @@
 		font-weight: 700;
 		transition: all 150ms linear;
 		cursor: pointer;
-		text-transform: uppercase;
 	}
 	dialog button:hover {
 		background-color: black;
@@ -435,19 +440,21 @@
 		flex-direction: column;
 		transition: all 450ms linear;
 		flex: 1;
+		gap: 6vmax;
+		margin: 0;
 	}
 	.message {
-		margin: 0 2vmax 6vmax;
 		box-shadow: var(--shadow);
 		flex: 1 0 auto;
 		display: flex;
 		flex-direction: column;
+		align-items: center;
 		justify-content: center;
-		opacity: 1;
-		text-align: center;
-		place-items: center;
 		aspect-ratio: 5/2;
-		border-radius: 1vmin 5vmin 5vmin;
+		border-radius: 1vmin 5vmin 10vmin;
+		margin-inline: 2vmax;
+		overflow: hidden;
+		z-index: 1;
 	}
 	.message:first-of-type {
 		margin-top: 6vmax;
@@ -466,7 +473,6 @@
 	}
 	.message .time {
 		font-size: clamp(1rem, 5vw, 5rem);
-		text-shadow: none;
 	}
 	.bad {
 		background-color: var(--bad-background);
@@ -495,10 +501,7 @@
 	.good {
 		background-color: var(--good-background);
 	}
-	.message.good {
-		z-index: 1;
-		overflow: hidden;
-	}
+
 	.message.good::before {
 		content: '';
 		place-self: center;
