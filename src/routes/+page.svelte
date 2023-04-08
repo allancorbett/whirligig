@@ -465,9 +465,6 @@
 	}
 
 	@media (max-width: 960px) {
-		.wrapper {
-			grid-template: repeat(6, 1fr) / 1fr;
-		}
 		.message {
 			aspect-ratio: 5/4;
 		}
@@ -475,7 +472,6 @@
 	.message p {
 		grid-column: 1/-1;
 		grid-row: 3/4;
-		padding-inline: 2rem;
 		margin: 0;
 		font-size: clamp(7rem, 15vw, 30rem);
 		letter-spacing: -0.125ch;
