@@ -372,7 +372,7 @@
 		font-weight: 800;
 	}
 	header h1 {
-		font-size: clamp(2rem, 4vw, 5rem);
+		font-size: clamp(2rem, 2vw, 5rem);
 		margin: 0;
 	}
 	menu {
