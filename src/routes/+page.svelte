@@ -446,14 +446,14 @@
 	.wrapper {
 		grid-row: 2/3;
 		grid-column: 1/-1;
-		display: grid;
-		grid-template: repeat(6, 1fr);
+		display: flex;
+		flex-direction: column;
 		transition: all 450ms linear;
 	}
 	.message {
 		margin: 2vmax 5vmax;
 		box-shadow: var(--shadow);
-		flex: 1;
+		flex: 1 0 auto;
 		display: grid;
 		grid-template-columns: 100%;
 		grid-template-rows: 1fr 1fr 3fr 1fr;
