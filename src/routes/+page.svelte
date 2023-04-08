@@ -196,6 +196,24 @@
 
 <svelte:head>
 	<title>Whirligig Weather</title>
+	<meta property="og:title" content="Whirligig - Should you hang your washing out to dry?" />
+	<meta
+		property="og:description"
+		content="Whirligig is a website that helps you determine whether or not you should hang your washing out to dry based on the weather in your area."
+	/>
+	<meta
+		property="og:image"
+		content="https://allancorbett.github.io/whirligig/whirligig-image.jpg"
+	/>
+	<meta property="og:url" content="https://allancorbett.github.io/whirligig/whirligig" />
+	<meta property="og:type" content="website" />
+
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link
+		href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap"
+		rel="stylesheet"
+	/>
 </svelte:head>
 <main class={headerColour}>
 	<header>
@@ -305,13 +323,6 @@
 		</div>
 	{/key}
 </main>
-
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-	href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap"
-	rel="stylesheet"
-/>
 
 <style>
 	:root {
