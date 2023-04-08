@@ -334,7 +334,6 @@
 		--location-stripe: hsl(190, 75%, 50%);
 		--text: white;
 		--text-shadow: 0 0.25em 0 hsl(0, 0%, 0%);
-		/* font-family: 'Space Grotesk', sans-serif; */
 		font-family: 'Syne', sans-serif;
 		line-height: 1;
 		color: var(--text);
@@ -424,6 +423,7 @@
 		display: flex;
 		flex-direction: column;
 		transition: all 450ms linear;
+		flex: 1;
 	}
 	.message {
 		margin: 0 2vmax 6vmax;
