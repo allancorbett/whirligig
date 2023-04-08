@@ -205,7 +205,7 @@
 		property="og:image"
 		content="https://allancorbett.github.io/whirligig/whirligig-image.jpg"
 	/>
-	<meta property="og:url" content="https://allancorbett.github.io/whirligig/whirligig" />
+	<meta property="og:url" content="https://allancorbett.github.io/whirligig" />
 	<meta property="og:type" content="website" />
 
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -326,7 +326,7 @@
 
 <style>
 	:root {
-		--shadow-color: 0, 0%, 0%;
+		--shadow-color: 0, 0%, 20%;
 		--shadow: 0px 1px 1.1px hsla(var(--shadow-color), 0.13),
 			0px 6.2px 6.7px -0.5px hsla(var(--shadow-color), 0.12),
 			0px 12.2px 13.3px -0.9px hsla(var(--shadow-color), 0.12),
@@ -334,14 +334,14 @@
 			0px 38.1px 41.4px -1.8px hsla(var(--shadow-color), 0.11),
 			0px 63.6px 69.2px -2.3px hsla(var(--shadow-color), 0.11),
 			0px 101px 109.8px -2.7px hsla(var(--shadow-color), 0.11);
-		--good-line: greenyellow;
-		--good-background: darkgreen;
-		--bad-background: hsl(0, 100%, 36%);
-		--bad-stripe: hsla(0deg, 100%, 0%, 0.875);
-		--bad-stripe-highlight: hsla(0deg, 100%, 0%, 1);
+		--good-line: hsl(84, 86%, 27%);
+		--good-background: hsl(120, 85%, 15%);
+		--bad-background: hsl(0, 76%, 27%);
+		--bad-stripe: hsla(0, 56%, 20%, 0.768);
+		--bad-stripe-highlight: hsl(0, 55%, 13%);
 		--default-background: hsl(180, 100%, 25.1%);
 		--dialog-background: hsla(180, 100%, 17.5%, 0.9);
-		--loading-stripe: hsl(180, 100%, 17.5%);
+		--loading-stripe: hsl(180, 50%, 32%);
 		--location-stripe: hsl(190, 75%, 50%);
 		--text: white;
 		--text-shadow: 0 0.25em 0 hsl(0, 0%, 0%);
@@ -392,7 +392,7 @@
 		background-color: hsla(0, 0%, 100%, 0.9);
 	}
 	dialog::backdrop {
-		background-color: var(--default-background);
+		background-color: var(--dialog-background);
 	}
 	@supports (backdrop-filter: blur(2rem)) {
 		dialog::backdrop {
@@ -415,7 +415,6 @@
 		font-weight: 700;
 	}
 	dialog button {
-		font-family: 'Space Grotesk', sans-serif;
 		appearance: none;
 		outline: none;
 		background-color: transparent;
