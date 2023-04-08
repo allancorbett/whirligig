@@ -200,7 +200,6 @@
 <main class={headerColour}>
 	<header>
 		<h1>Whirligig weather?</h1>
-
 		<menu on:click={() => demoDialog.showModal()}>
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
 				<path
@@ -270,54 +269,30 @@
 					{#if isDay1Am()}
 						<div class="message {day1Am() ? 'good' : 'bad'}">
 							<div class="time">this morning?</div>
-							{#if day1Am()}
-								<p>Yup!</p>
-							{:else}
-								<p>Nope.</p>
-							{/if}
+							<div class="status">{day1Am() ? 'Yup!' : 'Nope'}</div>
 						</div>
 					{/if}
 					{#if isDay1Pm()}
 						<div class="message {day1Pm() ? 'good' : 'bad'}">
 							<div class="time">this afternoon?</div>
-							{#if day1Pm()}
-								<p>Yup!</p>
-							{:else}
-								<p>Nope.</p>
-							{/if}
+							<div class="status">{day1Pm() ? 'Yup!' : 'Nope'}</div>
 						</div>
 					{/if}
 					<div class="message {day2Am() ? 'good' : 'bad'}">
 						<div class="time">tomorrow morning?</div>
-						{#if day2Am()}
-							<p>Yup!</p>
-						{:else}
-							<p>Nope.</p>
-						{/if}
+						<div class="status">{day2Am() ? 'Yup!' : 'Nope'}</div>
 					</div>
 					<div class="message {day2Pm() ? 'good' : 'bad'}">
 						<div class="time">tomorrow afternoon?</div>
-						{#if day2Pm()}
-							<p>Yup!</p>
-						{:else}
-							<p>Nope.</p>
-						{/if}
+						<div class="status">{day2Pm() ? 'Yup!' : 'Nope'}</div>
 					</div>
 					<div class="message {day3Am() ? 'good' : 'bad'}">
 						<div class="time">the day after morning?</div>
-						{#if day3Am()}
-							<p>Yup!</p>
-						{:else}
-							<p>Nope.</p>
-						{/if}
+						<div class="status">{day3Am() ? 'Yup!' : 'Nope'}</div>
 					</div>
 					<div class="message {day3Pm() ? 'good' : 'bad'}">
 						<div class="time">the day after afternoon?</div>
-						{#if day3Pm()}
-							<p>Yup!</p>
-						{:else}
-							<p>Nope.</p>
-						{/if}
+						<div class="status">{day3Pm() ? 'Yup!' : 'Nope'}</div>
 					</div>
 				{:else}
 					<div class="loading"><p>Checking...</p></div>
@@ -334,7 +309,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
-	href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
+	href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap"
 	rel="stylesheet"
 />
 
@@ -359,23 +334,23 @@
 		--location-stripe: hsl(190, 75%, 50%);
 		--text: white;
 		--text-shadow: 0 0.25em 0 hsl(0, 0%, 0%);
-		font-family: 'Space Grotesk', sans-serif;
-		line-height: 0.9;
+		/* font-family: 'Space Grotesk', sans-serif; */
+		font-family: 'Syne', sans-serif;
+		line-height: 1;
 		color: var(--text);
 		font-weight: 700;
 		text-shadow: var(--text-shadow);
+		-webkit-text-stroke: 0.25em hsl(0, 0%, 0%);
+		paint-order: stroke;
 	}
 
 	main {
-		display: grid;
-		grid-template-rows: auto 1fr;
-		grid-template-columns: 100%;
+		display: flex;
+		flex-direction: column;
 		background-color: var(--default-background);
 		min-height: 100vh;
 	}
 	header {
-		grid-row: 1/2;
-		grid-column: 1/-1;
 		z-index: 2;
 		backdrop-filter: blur(2rem);
 		--webkit-backdrop-filter: blur(2rem);
@@ -383,9 +358,11 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 2rem;
+		box-shadow: var(--shadow);
+		font-weight: 800;
 	}
 	header h1 {
-		font-size: 3rem;
+		font-size: clamp(2rem, 4vw, 5rem);
 		margin: 0;
 	}
 	menu {
@@ -444,24 +421,25 @@
 	}
 
 	.wrapper {
-		grid-row: 2/3;
-		grid-column: 1/-1;
 		display: flex;
 		flex-direction: column;
 		transition: all 450ms linear;
 	}
 	.message {
-		margin: 2vmax 5vmax;
+		margin: 0 2vmax 6vmax;
 		box-shadow: var(--shadow);
 		flex: 1 0 auto;
-		display: grid;
-		grid-template-columns: 100%;
-		grid-template-rows: 1fr 1fr 3fr 1fr;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 		opacity: 1;
 		text-align: center;
 		place-items: center;
 		aspect-ratio: 5/2;
-		border-radius: 5vmin;
+		border-radius: 1vmin 5vmin 5vmin;
+	}
+	.message:first-of-type {
+		margin-top: 6vmax;
 	}
 
 	@media (max-width: 960px) {
@@ -469,17 +447,15 @@
 			aspect-ratio: 5/4;
 		}
 	}
-	.message p {
-		grid-column: 1/-1;
-		grid-row: 3/4;
+	.message .status {
 		margin: 0;
-		font-size: clamp(7rem, 15vw, 30rem);
-		letter-spacing: -0.125ch;
+		font-size: clamp(2rem, 20vw, 15rem);
+		font-weight: 800;
+		letter-spacing: -0.05ch;
 	}
 	.message .time {
-		grid-row: 2/3;
-		font-size: clamp(1rem, 3vw, 5rem);
-		z-index: 1;
+		font-size: clamp(1rem, 5vw, 5rem);
+		text-shadow: none;
 	}
 	.bad {
 		background-color: var(--bad-background);
@@ -544,12 +520,12 @@
 		display: grid;
 		place-items: center;
 		grid-template: 1fr / 1fr;
-		letter-spacing: -0.125ch;
 		text-align: center;
 		background-size: 100% 100%;
+		font-weight: 700;
+		font-size: clamp(2rem, 13vw, 10rem);
 	}
 	.loading {
-		font-size: clamp(4rem, 15vw, 30rem);
 		background-image: repeating-linear-gradient(
 			-30deg,
 			var(--loading-stripe) 0vmin,
@@ -558,12 +534,9 @@
 			transparent 20vmin
 		);
 		background-position: center center;
-
 		animation: loading 5s linear infinite;
 	}
 	.location {
-		font-size: clamp(2rem, 5vw, 10rem);
-
 		background-image: repeating-radial-gradient(
 			circle,
 			transparent 0vmin,
@@ -599,30 +572,4 @@
 			opacity: 1;
 		}
 	}
-
-	/* .forecast {
-		animation: fade 1s ease-in-out forwards;
-		opacity: 0;
-		flex: 0;
-		display: grid;
-		grid-template-columns: repeat(24, 1fr);
-	}
-	.hour {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.25rem;
-		padding-block: 0.5rem;
-		font-size: 0.75rem;
-	}
-	small {
-		font-weight: 100;
-	}
-	.time {
-		font-weight: 900;
-	}
-	.night {
-		color: hsla(0deg, 0%, 30%, 0.9);
-		background-color: hsla(0deg, 0%, 30%, 0.6);
-	} */
 </style>
